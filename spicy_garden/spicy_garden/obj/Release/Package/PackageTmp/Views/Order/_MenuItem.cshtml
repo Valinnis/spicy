@@ -1,48 +1,41 @@
 ﻿@model spicy_garden.Models.MenuItemView
 
-@{
-	var flipped = "";
-	var btn_text = "Add to Cart";
-	if (Model.Selected)
-	{
-		flipped = "flipped";
-		btn_text = "Remove";
-	}
-}
 @using (Html.BeginCollectionItem("Items"))
 {
-<div class="menuitem left @flipped">
+<div class="menuitem left">
 	<div class="front">
-		<span class="med-1 heavy item-name">@Model.Item.ItemName</span><br />
-		<span class="small item-desc">@Model.Item.ItemDesc </span> <br />
+		<span class="med-1 heavy item-name">@Model.Name</span><br />
+		<span class="small item-desc">@Model.Description </span> <br />
 	</div>
 	<div class="back">
-		<span class="med-1 heavy item-name">@Model.Item.ItemName</span><br />
+		<span class="med-1 heavy item-name">@Model.Name</span><br />
 		<div class="list-container clearfix">
-			@Html.HiddenFor(m => m.Item.Id)
-			@if (Model.Item.HasOptions)
+			@Html.HiddenFor(m => m.Id)
+			
+			@if (Model.HasOptions)
 			{
 				@Html.DropDownListFor(m => m.OptionSelected, Model.Options, new { @class = "dropdown_menu left hspace space-small option" })
 			}
-			@if (Model.Item.HasSpicy)
+			@if (Model.HasSpicy)
 			{
 				@Html.EnumDropDownListFor(m => m.SpiceLevel, new { @class = "dropdown_menu left hspace space-small spicelevel" })
 			}
-			@if (Model.Item.HasSauce)
+			@if (Model.HasSauce)
 			{
-				@Html.EnumDropDownListFor(m => m.Item.Sauces, new { @class = "dropdown_menu left hspace space-small sauce" })
+				@Html.EnumDropDownListFor(m => m.Sauce, new { @class = "dropdown_menu left hspace space-small sauce" })
 			}
-			@if (Model.HasHalfOrder)
-			{
-				@Html.CheckBoxFor(m => m.HalfOrder, new { @class = "half-check left halforder" });
-				@Html.LabelFor(m => m.HalfOrder, new { @class = "left small" });
-			}
+			
+			@*if (Model.HasHalfOrder)*/
+			//{
+			//	@Html.CheckBoxFor(m => m.IsHalfOrder, new { @class = "half-check left halforder" });
+			//	@Html.LabelFor(m => m.IsHalfOrder, new { @class = "left small" });
+			//}*@
 		</div>
 		<span class="quantity-label left small">Quantity:</span>
 		@Html.TextBoxFor(p => p.Quantity, new { @class = "quantity-input clear", Value = Model.Quantity, MaxLength = 2 })
-		<button class="add-btn link nav-button no-hover light-grey small">@btn_text</button>
+		<button class="add-btn link nav-button no-hover light-grey small">Add to Cart</button>
 		<span class="medium price-tag">
-			$@Model.Item.ItemPrice
+			$@Model.Price
 		</span>
 	</div>
 </div>

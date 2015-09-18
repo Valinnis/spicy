@@ -6,6 +6,6 @@
 		@foreach (spicy_garden.Models.MenuCategory category in Enum.GetValues(typeof(spicy_garden.Models.MenuCategory)))
 		{
 			<h3 class="cat-head clear" id="@category.ToString().ToLower()">@category.ToString()</h3>
-			{ Html.RenderPartial("_CategoryView", Model.MenuItems.Where(x => x.Item.Category == category)); }
+			{ Html.RenderPartial("_CategoryView", Model.MenuItems.Where(x => x.Category == category)); }
 		}
 </div>

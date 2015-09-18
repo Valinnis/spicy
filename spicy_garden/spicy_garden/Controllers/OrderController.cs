@@ -75,7 +75,7 @@ namespace spicy_garden.Controllers
 		}
 
 		// helper function to get list of options
-		private IEnumerable<SelectListItem> ObtainItems(List<MenuOptions> list)
+		private IEnumerable<SelectListItem> ObtainOptions(List<MenuOptions> list)
 		{
 			var returnList = new List<SelectListItem>();
 			foreach (var item in list)
@@ -84,55 +84,96 @@ namespace spicy_garden.Controllers
 			}
 			return returnList;
 		}
-
-		// GET: Order
-		public async Task<ActionResult> Index()
+		
+		private async Task<bool> StartOrder()
 		{
-			string oid = null;
 			HttpCookie cookie = Request.Cookies["blowme"];
 			if (!Request.IsAuthenticated)
 			{
+				// entry anonymous orders
 				cookie = await setOrderCookie(cookie, "");
 				if (!AssertNonTampered(cookie["cid"], cookie["oid"], cookie))
 				{
-					return RedirectToAction("Index");
+					return false;
 				}
-				oid = cookie["oid"];
 			}
 			else
 			{
+				// user is logged in
 				string uid = User.Identity.GetUserId();
 				Customer cust = this.SpicyGardenDbContext.Customers.Where(c => c.AccountId == uid).FirstOrDefault();
 				cookie = await setOrderCookie(cookie, cust.Id);
-				oid = cookie["oid"];
+				string oid = cookie["oid"];
 				// if there is an existing order on the computer we assume that they just forgot to log in and we add to the order. Don't use a public PC to make food orders?
 				await orderHandler.UpdateOrderAccount(this.SpicyGardenDbContext.Orders.Where(k => k.Id == oid).FirstOrDefault(), cust);
-				if (!AssertNonTampered(cookie["cid"], cookie["oid"], cookie)){
-					return RedirectToAction("Index");
-				}
-			}
-			// everything should be good to go. user order has been set or reset. Now grab the order items that already exist (or don't exist)
-			List<OrderItems> existingItems = this.SpicyGardenDbContext.OrderItems.Where(x => x.OrderId == oid && x.Removed == false && x.Quantity > 0).ToList();
-			List<MenuItemView> personalizedList = new List<MenuItemView>();
-			var items = this.SpicyGardenDbContext.Menu.ToList();
-			foreach (var i in items)
-			{
-				MenuItemView temp = new MenuItemView() { Item = i, HasHalfOrder = i.HalfOrderPrice > 0 ? true : false };
-				OrderItems matched = existingItems.Find(e => e.MenuItemId == i.Id);
-				temp.Options = ObtainItems(this.SpicyGardenDbContext.Options.Where(o => o.MenuItemId == i.Id).ToList());
-				temp.SpiceLevel = SpicyScale.Mild;
-				if (matched != null)
+				if (!AssertNonTampered(cookie["cid"], cookie["oid"], cookie))
 				{
-					System.Diagnostics.Debug.WriteLine("Found a match");
-					temp.Quantity = matched.Quantity;
-					temp.HalfOrder = matched.IsHalfOrder;
-					temp.Selected = true;
-					temp.SpiceLevel = matched.SpiceLevel;
+					return false;
 				}
-				personalizedList.Add(temp);
 			}
+			return true;
+		}
+		/* GetMenuView() returns an IEnumerable of everything in the Menu with additional information to display to the user */
+		private IEnumerable<MenuItemView> GetMenuView()
+		{
+			var Items =  
+			(from item in this.SpicyGardenDbContext.Menu
+			 select new MenuItemView
+			 {
+				 IsHalfOrder = false,
+				 SpiceLevel = SpicyScale.Hot,
+				 Sauce = Sauce.Fish,
+				 Id = item.Id,
+				 Description = item.Description,
+				 HasOptions = item.HasOptions,
+				 HasSauce = item.HasSauce,
+				 HasSpicy = item.HasSpicy,
+				 Name = item.Name
+			 }).ToList();
+
+			foreach (var item in Items)
+			{
+				item.Options = ObtainOptions(this.SpicyGardenDbContext.Options.Where(o => o.MenuItemId == item.Id).ToList());
+			}
+			return Items;
+		}
+		/* GetCartView() returns an IEnumerable of everything in the shopping cart already with additional information to display to the user */
+		private IEnumerable<CartItemView> GetCartView()
+		{
+			string oid = Request.Cookies["blowme"]["oid"];
+			var CartItems = (from item in this.SpicyGardenDbContext.OrderItems
+								  where item.OrderId == oid && item.Removed == false
+								  select new CartItemView
+								  {
+									  IsHalfOrder        =  item.IsHalfOrder,
+									  OptionName         =  this.SpicyGardenDbContext.Options.Where(o => o.Id == item.OptionId).FirstOrDefault() != null ?
+																	this.SpicyGardenDbContext.Options.Where(o => o.Id == item.OptionId).FirstOrDefault().OptionName :
+																	null,
+									  SelectedOptionId   =  item.OptionId,
+									  Quantity           =  item.Quantity,
+									  SpiceLevel         =  item.SpiceLevel,
+									  Sauce              =  item.Sauce,
+									  Id                 =  item.MenuItemId,
+									  Name               =  this.SpicyGardenDbContext.Menu.Where(m => m.Id == item.MenuItemId).FirstOrDefault().Name,
+									  Category				=	this.SpicyGardenDbContext.Menu.Where(m => m.Id == item.MenuItemId).FirstOrDefault().Category
+								  }).ToList();
+			return CartItems;
+		}
+		// GET: Order
+		public async Task<ActionResult> Index()
+		{
+			if (!(await StartOrder()))
+			{
+				return RedirectToAction("Index");
+			}
+			// everything should be good to go. user order has been set or reset. First we grab a representation of all the menu items to display to the user 
+			var MenuItems = GetMenuView();
+			var CartItems = GetCartView();
+			
+			//var CartItems = new List<CartItemView>();
+			//Now grab the order items that already exist (or don't exist)
 			setDisplayParams();
-			return View(new MainOrderView(personalizedList));
+			return View(new MainOrderView(MenuItems, CartItems));
 		}
 
 		private string GenerateItemHtml(OrderItems o)
@@ -141,17 +182,17 @@ namespace spicy_garden.Controllers
 			if (o != null)
 			{
 				MenuItems item = this.SpicyGardenDbContext.Menu.Where(x => x.Id == o.MenuItemId).First();
-            s += "<tr><td colspan='2'>" + o.Quantity + " " + item.ItemName + (o.IsHalfOrder ? " (Half-Order)</td></tr>\n" : "</td></tr>\n");
+            s += "<tr><td colspan='2'>" + o.Quantity + " " + item.Name + (o.IsHalfOrder ? " (Half-Order)</td></tr>\n" : "</td></tr>\n");
 				if (o.OptionId != null)
 				{
 					MenuOptions opt = this.SpicyGardenDbContext.Options.Where(x => x.Id == o.OptionId).First();
-					s += "<tr><td class='cart-det'>" + opt.OptionName + (o.Sauces != null ? " with " + o.Sauces.Value + " sauce</td>" : "</td>");
+					s += "<tr><td class='cart-det'>" + opt.OptionName + (o.Sauce != null ? " with " + o.Sauce.Value + " sauce</td>" : "</td>");
 					s += "<td class='cart-s price'>" + (o.IsHalfOrder ? opt.HalfOrderPrice * o.Quantity : opt.OptionPrice * o.Quantity) + "</td></tr>\n";
 				}
 				else
 				{
-					s += "<tr><td class='cart-det'>" + (o.Sauces != null ? o.Sauces.Value + " sauce</td>" : "</td>");
-					s += "<td class='cart-s price'>" + (o.IsHalfOrder ? item.HalfOrderPrice * o.Quantity : item.ItemPrice * o.Quantity) + "</td></tr>\n";
+					s += "<tr><td class='cart-det'>" + (o.Sauce != null ? o.Sauce.Value + " sauce</td>" : "</td>");
+					s += "<td class='cart-s price'>" + (o.IsHalfOrder ? item.HalfOrderPrice * o.Quantity : item.Price * o.Quantity) + "</td></tr>\n";
 				}
 			}
 			s += "</table>";
@@ -164,8 +205,10 @@ namespace spicy_garden.Controllers
 		{
 			try
 			{
-				MenuItemView newItem = new MenuItemView() { HalfOrder = halfOrder, OptionSelected = optionId, Quantity = quantity, SpiceLevel = spiceLevel, Sauce = sauce };
-				newItem.Item = await this.SpicyGardenDbContext.Menu.Where(m => m.Id == itemId).FirstAsync();
+				MenuItemView newItem = new MenuItemView() { IsHalfOrder = halfOrder, OptionSelected = optionId, Quantity = quantity, SpiceLevel = spiceLevel, Sauce = sauce };
+				var dbItem = await SpicyGardenDbContext.Menu.Where(m => m.Id == itemId).FirstAsync();
+				newItem.Id = dbItem.Id;
+				
 				HttpCookie c = Request.Cookies["blowme"];
 				if (!AssertNonTampered(c["cid"], c["oid"], c))
 				{
@@ -231,82 +274,11 @@ namespace spicy_garden.Controllers
 					}
 					else
 					{
-						price = menuitem.ItemPrice;
+						price = menuitem.Price;
 					}
 				}
 			}
 			return price * quantity;
-		}
-		// GET: Order/Details/5
-		public ActionResult Details(int id)
-		{
-			return View();
-		}
-
-		// GET: Order/Create
-		public ActionResult Create()
-		{
-			return View();
-		}
-
-		// POST: Order/Create
-		[HttpPost]
-		public ActionResult Create(FormCollection collection)
-		{
-			try
-			{
-				// TODO: Add insert logic here
-
-				return RedirectToAction("Index");
-			}
-			catch
-			{
-				return View();
-			}
-		}
-
-		// GET: Order/Edit/5
-		public ActionResult Edit(int id)
-		{
-			return View();
-		}
-
-		// POST: Order/Edit/5
-		[HttpPost]
-		public ActionResult Edit(int id, FormCollection collection)
-		{
-			try
-			{
-				// TODO: Add update logic here
-
-				return RedirectToAction("Index");
-			}
-			catch
-			{
-				return View();
-			}
-		}
-
-		// GET: Order/Delete/5
-		public ActionResult Delete(int id)
-		{
-			return View();
-		}
-
-		// POST: Order/Delete/5
-		[HttpPost]
-		public ActionResult Delete(int id, FormCollection collection)
-		{
-			try
-			{
-				// TODO: Add delete logic here
-
-				return RedirectToAction("Index");
-			}
-			catch
-			{
-				return View();
-			}
 		}
 	}
 }

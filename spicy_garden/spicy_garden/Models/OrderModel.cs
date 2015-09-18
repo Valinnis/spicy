@@ -32,7 +32,16 @@ namespace spicy_garden.Models
 		public OrderStatus OrderStatus { get; set; }
 		public DateTime Created { get; set; }
 	}
-
+	public abstract class Item
+	{
+		[Key]
+		public string Id { get; set; }
+		public string Name { get; set; }
+		public string Description { get; set; }
+		public decimal Price { get; set; }
+		public decimal HalfOrderPrice { get; set; }
+		public MenuCategory Category { get; set; }
+	}
 	public class OrderItems
 	{
 		public OrderItems()
@@ -47,27 +56,21 @@ namespace spicy_garden.Models
 		public bool IsHalfOrder { get; set; }
 		public int Quantity { get; set; }
 		public bool Removed { get; set; }
-		public Sauce ? Sauces { get; set; }
+		public Sauce ? Sauce { get; set; }
 		public SpicyScale ? SpiceLevel { get; set; }
 		public DateTime Created { get; set; }
 	}
-	public class MenuItems
+
+	public class MenuItems : Item
 	{
 		public MenuItems()
 		{
 			this.Id = Guid.NewGuid().ToString();
 		}
-		[Key]
-		public string Id { get; set; }
-		public string ItemName { get; set; }
-		public decimal ItemPrice { get; set; }
-		public decimal HalfOrderPrice { get; set; }
-		public MenuCategory Category { get; set; }
 		public bool HasOptions { get; set; }
-		public Sauce ? Sauces { get; set; }
 		public bool HasSpicy { get; set; }
-		public string ItemDesc { get; set; }
-		public string ImgURL { get; set; }
 		public bool HasSauce { get; set; }
+		public string ImgURL { get; set; }
+		public DateTime Created { get; set; }
 	}
 }

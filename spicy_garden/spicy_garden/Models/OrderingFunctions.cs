@@ -76,7 +76,7 @@ namespace spicy_garden.Models
 			if (orderId != null && orderId != "" && item != null)
 			{
 				// see if there is already a menuitem with that comb
-				OrderItems existingItem = await this.database.OrderItems.Where(x => x.OrderId == orderId && x.MenuItemId == item.Item.Id && x.OptionId == item.OptionSelected).FirstOrDefaultAsync();
+				OrderItems existingItem = await this.database.OrderItems.Where(x => x.OrderId == orderId && x.MenuItemId == item.Id && x.OptionId == item.OptionSelected).FirstOrDefaultAsync();
 				
 				// Entry point: Item does exist already in the cart
 				if (existingItem != null)
@@ -94,8 +94,8 @@ namespace spicy_garden.Models
 						existingItem.Quantity = item.Quantity;
 						existingItem.Removed = false;
 						existingItem.OptionId = item.OptionSelected;
-						existingItem.IsHalfOrder = item.HalfOrder;
-						existingItem.Sauces = item.Sauce;
+						existingItem.IsHalfOrder = item.IsHalfOrder;
+						existingItem.Sauce = item.Sauce;
 						existingItem.SpiceLevel = item.SpiceLevel;
 						existingItem.Created = DateTime.Now;
 					}
@@ -108,7 +108,7 @@ namespace spicy_garden.Models
 				else
 				{
 					// we create the new item
-					existingItem = new OrderItems() { MenuItemId = item.Item.Id, OrderId = orderId, Quantity = item.Quantity, IsHalfOrder = item.HalfOrder, OptionId = item.OptionSelected, SpiceLevel = item.SpiceLevel, Created = DateTime.Now };
+					existingItem = new OrderItems() { MenuItemId = item.Id, OrderId = orderId, Quantity = item.Quantity, IsHalfOrder = item.IsHalfOrder, OptionId = item.OptionSelected, SpiceLevel = item.SpiceLevel, Created = DateTime.Now };
 					this.database.OrderItems.Add(existingItem);
 				}
 			}

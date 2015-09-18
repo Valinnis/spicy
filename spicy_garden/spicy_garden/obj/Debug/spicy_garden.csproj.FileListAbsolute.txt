@@ -239,5 +239,4 @@ D:\spicy_clone\spicy_garden\spicy_garden\bin\Microsoft.Owin.Security.Twitter.xml
 D:\spicy_clone\spicy_garden\spicy_garden\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
 D:\spicy_clone\spicy_garden\spicy_garden\obj\Debug\spicy_garden.dll
 D:\spicy_clone\spicy_garden\spicy_garden\obj\Debug\spicy_garden.pdb
-D:\spicy_clone\spicy_garden\spicy_garden\bin\spicy_garden.dll.CodeAnalysisLog.xml
-D:\spicy_clone\spicy_garden\spicy_garden\bin\spicy_garden.dll.lastcodeanalysissucceeded
+D:\spicy_clone\spicy_garden\spicy_garden\obj\Debug\spicy_garden.csprojResolveAssemblyReference.cache

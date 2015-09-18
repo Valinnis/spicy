@@ -49,7 +49,7 @@ namespace spicy_garden.Controllers
 			if (ModelState.IsValid)
 			{
 				// create the menu item first
-				MenuItems item = new MenuItems() { HasSpicy = model.HasSpice == HasSpice.Yes ? true : false, HalfOrderPrice = model.HalfOrderPrice, ItemDesc = model.ItemDesc, ItemName = model.ItemName, ItemPrice = model.BasePrice, Category = model.Category, ImgURL = model.Url };
+				MenuItems item = new MenuItems() { HasSpicy = model.HasSpice == HasSpice.Yes ? true : false, HalfOrderPrice = model.HalfOrderPrice, Description = model.ItemDesc, Name = model.ItemName, Price = model.BasePrice, Category = model.Category, ImgURL = model.Url, Created = DateTime.Now };
 				// are we dealing with options or just a menu item
 				if (model.Options != null)
 				{

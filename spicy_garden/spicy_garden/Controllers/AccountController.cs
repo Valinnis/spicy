@@ -523,8 +523,13 @@ namespace spicy_garden.Controllers
 					_signInManager.Dispose();
 					_signInManager = null;
 				}
+				if (orderHandler != null)
+				{
+					orderHandler.Dispose();
+					orderHandler = null;
+				}
 			}
-
+			this.SpicyGardenDbContext.Dispose();
 			base.Dispose(disposing);
 		}
 

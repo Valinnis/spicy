@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Linq;
-using System.Data.Entity;
 using Microsoft.AspNet.Identity;
-using System.Data.Entity.Validation;
 using System.ComponentModel.DataAnnotations;
 
 namespace spicy_garden.Models

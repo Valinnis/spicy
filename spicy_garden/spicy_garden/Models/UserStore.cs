@@ -93,8 +93,12 @@ namespace spicy_garden.Models
 		}
 		public void Dispose()
 		{
+			Dispose(true);
 		}
-
+		protected virtual void Dispose(bool disposing)
+		{
+			this.database.Dispose();
+		}
 		public Task<int> IncrementAccessFailedCountAsync(AccountUser user)
 		{
 			throw new NotImplementedException();
@@ -129,5 +133,6 @@ namespace spicy_garden.Models
 		{
 			return Task.FromResult(false);
 		}
+
 	}
 }

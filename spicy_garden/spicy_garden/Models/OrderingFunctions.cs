@@ -10,7 +10,7 @@ namespace spicy_garden.Models
 	 * This class handles anything to do with CRUD orders. 
 	 * USAGE: var handler = new OrderHandler();
 	 */
-	public class OrderHandler
+	public class OrderHandler : IDisposable
 	{
 		private SpicyGardenDbContext database = new SpicyGardenDbContext();
 
@@ -208,6 +208,19 @@ namespace spicy_garden.Models
 				this.database.Entry(o).State = EntityState.Modified;
 			}
 			return this.database.SaveChangesAsync();
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+		}
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				this.database.Dispose();
+				this.database = null;
+			}
 		}
 	}
 }

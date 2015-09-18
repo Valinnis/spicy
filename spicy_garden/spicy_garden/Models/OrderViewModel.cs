@@ -7,14 +7,6 @@ using System.Web.Mvc;
 
 namespace spicy_garden.Models
 {
-	public class PartialSectionView
-	{
-		public PartialSectionView(string category, IEnumerable<MenuItemView> items)
-		{
-			this.MenuItems = items.Where(x => x.Item.Category.ToString().ToUpper() == category.ToUpper()).ToList();
-		}
-		public IEnumerable<MenuItemView> MenuItems { get; set; }
-	}
 	public class MainOrderView
 	{
 		public MainOrderView(List<MenuItemView> listOfItems)
@@ -23,7 +15,6 @@ namespace spicy_garden.Models
 		}
 		public IEnumerable<MenuItemView> MenuItems { get; set; }
 	}
-	public enum SpicyScale { Mild, Medium, Hot };
 	public class MenuItemView
 	{
 		public MenuItemView()

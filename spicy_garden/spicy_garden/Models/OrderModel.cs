@@ -1,9 +1,23 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
+/* These represent the data models for items that will eventually go into the database */
 namespace spicy_garden.Models
 {
-	public enum OrderStatus { Shopping, Open, Filled, Cancelled };
+	public class MenuOptions
+	{
+		public MenuOptions()
+		{
+			this.Id = Guid.NewGuid().ToString();
+		}
+		[Key]
+		public string Id { get; set; }
+		public string OptionName { get; set; }
+		public decimal OptionPrice { get; set; }
+		public decimal HalfOrderPrice { get; set; }
+		public string MenuItemId { get; set; }
+	}
+
 	public class Orders
 	{
 		public Orders()
@@ -37,8 +51,6 @@ namespace spicy_garden.Models
 		public SpicyScale ? SpiceLevel { get; set; }
 		public DateTime Created { get; set; }
 	}
-	public enum MenuCategory { Appetizers, Entrees, Dessert, Soup };
-	public enum Sauce { Fish, Plum, Curry, Satay, Teriyaki };
 	public class MenuItems
 	{
 		public MenuItems()

@@ -59,40 +59,6 @@ namespace spicy_garden.Models
 		public DateTime CreatedDate { get; set; }
 		public DateTime ModifiedDate { get; set; }
 	}
-	public partial class SpicyGardenDbContext : DbContext
-	{
-		public SpicyGardenDbContext()
-			 : base("DefaultConnection")
-		{ }
-		public virtual IDbSet<AccountUser> Users { get; set; }
-		public virtual DbSet<Customer> Customers { get; set; }
-		public virtual DbSet<Address> Addresses { get; set; }
-		public virtual DbSet<Orders> Orders { get; set; }
-		public virtual DbSet<OrderItems> OrderItems { get; set; }
-		public virtual DbSet<MenuItems> Menu { get; set; }
-		public virtual DbSet<MenuOptions> Options { get; set; }
-		protected override void OnModelCreating(DbModelBuilder modelBuilder)
-		{
-			base.OnModelCreating(modelBuilder);
-			modelBuilder.Entity<AccountUser>().ToTable("Accounts");
-			modelBuilder.Entity<Customer>().ToTable("Customers");
-			modelBuilder.Entity<Address>().ToTable("Addresses");
-		}
-
-		public override int SaveChanges()
-		{
-			try
-			{
-				return base.SaveChanges();
-			}
-			catch (DbEntityValidationException ex)
-			{
-				var errorMessages = ex.EntityValidationErrors.SelectMany(x => x.ValidationErrors).Select(x => x.ErrorMessage);
-				var fullErrorMessage = string.Join("; ", errorMessages);
-				var exceptionMessage = string.Concat(ex.Message, " The validation errors are: ", fullErrorMessage);
-				throw new DbEntityValidationException(exceptionMessage, ex.EntityValidationErrors);
-			}
-		}
-	}
+	
 }
  

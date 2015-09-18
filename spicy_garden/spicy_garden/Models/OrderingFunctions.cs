@@ -1,16 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace spicy_garden.Models
 {
+	/*
+	 * This class handles anything to do with CRUD orders. 
+	 * USAGE: var handler = new OrderHandler();
+	 */
 	public class OrderHandler
 	{
 		private SpicyGardenDbContext database = new SpicyGardenDbContext();
+
+		// AddMenuItemAsync(item) => void
+		// Takes an item (MenuItems) and adds it to the Menu table in the database
+		// PRODUCTION: comment out for production code. This will not be available.
 		public async Task AddMenuItemAsync(MenuItems item)
 		{
 			try {
@@ -25,6 +31,10 @@ namespace spicy_garden.Models
 				throw new DbEntityValidationException(exceptionMessage, ex.EntityValidationErrors);
 			}
 		}
+
+		// AddMenuOptionAsync(option) => void
+		// Takes an option (MenuOptions) and adds it to the Option table in the database
+		// PRODUCTION: comment out for production code. This will not be available.
 		public async Task AddMenuOptionAsync(MenuOptions option)
 		{
 			try
@@ -42,6 +52,9 @@ namespace spicy_garden.Models
 			}
 		}
 
+		// RemoveMenuItem(item) => void
+		// Removes an item (MenuItems)
+		// PRODUCTION: comment out for production code. This will not be available.
 		public Task RemoveMenuItem(MenuItems item)
 		{
 			if (item != null)
@@ -55,54 +68,62 @@ namespace spicy_garden.Models
 			return database.SaveChangesAsync();
 		}
 
-		public async Task<bool> AddItemToCart(string orderId,  MenuItemView item)//string optionId, Sauce sauce, string itemId, int quantity)
+		// AddItemToCart(string, MenuItemView) => async void
+		// Associates a given item with an order id and sets it in the database
+		// PRODUCTION: This should be called from an AJAX POST/GET script. 
+		public async Task AddItemToCart(string orderId,  MenuItemView item)//string optionId, Sauce sauce, string itemId, int quantity)
 		{
 			if (orderId != null && orderId != "" && item != null)
 			{
 				// see if there is already a menuitem with that comb
-				OrderItems exists = await this.database.OrderItems.Where(x => x.OrderId == orderId && x.MenuItemId == item.Item.Id).FirstOrDefaultAsync();
-				if (exists != null)
+				OrderItems existingItem = await this.database.OrderItems.Where(x => x.OrderId == orderId && x.MenuItemId == item.Item.Id && x.OptionId == item.OptionSelected).FirstOrDefaultAsync();
+				
+				// Entry point: Item does exist already in the cart
+				if (existingItem != null)
 				{
-					// in case we get some smart ass...
-					if (item.Quantity == 0)
+					// just in case - this shouldn't be possible since there is javascript verification and currently this is AJAX only.
+					// However, this is here in case we have users who don't use JS or somehow validation doesn't catch it properly
+					if (item.Quantity < 0)
 					{
-						exists.Quantity = 0;
-						exists.Removed = true;
+						existingItem.Quantity = 0;
+						existingItem.Removed = true;
 					}
 					else
 					{
 						// we just update the changes
-						exists.Quantity = item.Quantity;
-						exists.Removed = false;
-						//exists.Option = await this.database.Options.Where(i => i.Id == item.OptionSelected).FirstOrDefaultAsync();
-						exists.OptionId = item.OptionSelected;
-						exists.IsHalfOrder = item.HalfOrder;
-						exists.Sauces = item.Sauce;
-						exists.SpiceLevel = item.SpiceLevel;
-						exists.Created = DateTime.Now;
+						existingItem.Quantity = item.Quantity;
+						existingItem.Removed = false;
+						existingItem.OptionId = item.OptionSelected;
+						existingItem.IsHalfOrder = item.HalfOrder;
+						existingItem.Sauces = item.Sauce;
+						existingItem.SpiceLevel = item.SpiceLevel;
+						existingItem.Created = DateTime.Now;
 					}
-					if (this.database.Entry(exists).State == EntityState.Detached)
+					if (this.database.Entry(existingItem).State == EntityState.Detached)
 					{
-						this.database.OrderItems.Attach(exists);
+						this.database.OrderItems.Attach(existingItem);
 					}
-					this.database.Entry(exists).State = EntityState.Modified;
-				}
+					this.database.Entry(existingItem).State = EntityState.Modified;
+				} // end item exists and entry item doesn't exist
 				else
 				{
 					// we create the new item
-					exists = new OrderItems() { MenuItemId = item.Item.Id, OrderId = orderId, Quantity = item.Quantity, IsHalfOrder = item.HalfOrder, OptionId = item.OptionSelected, SpiceLevel = item.SpiceLevel, Created = DateTime.Now };
-					this.database.OrderItems.Add(exists);
+					existingItem = new OrderItems() { MenuItemId = item.Item.Id, OrderId = orderId, Quantity = item.Quantity, IsHalfOrder = item.HalfOrder, OptionId = item.OptionSelected, SpiceLevel = item.SpiceLevel, Created = DateTime.Now };
+					this.database.OrderItems.Add(existingItem);
 				}
 			}
 			await this.database.SaveChangesAsync();
-			return true;
 		}
 
-		public Task RemoveItemFromCart(string orderId, string itemId)
+		// RemoveItemFromCart(string, string, string) => async void
+		// tries to find a matching item in the database and removes that item from the cart.
+		// PRODUCTION: This should be called from an AJAX POST/GET script. 
+		public async Task RemoveItemFromCart(string orderId, string itemId, string optionId)
 		{
 			if (orderId != "" && itemId != "")
 			{
-				OrderItems e = this.database.OrderItems.Where(x => x.OrderId == orderId && x.MenuItemId == itemId).FirstOrDefault();
+				// FIX: we want to allow users to add more than one option element to the cart. Therefore we also need to ensure that the options are the same for the element we remove 
+				OrderItems e = await this.database.OrderItems.Where(x => x.OrderId == orderId && x.MenuItemId == itemId && x.OptionId == optionId).FirstOrDefaultAsync();
 				if (e != null)
 				{
 					e.Quantity = 0;
@@ -114,12 +135,14 @@ namespace spicy_garden.Models
 				}
 				this.database.Entry(e).State = EntityState.Modified;
 			}
-			return this.database.SaveChangesAsync();
+			await this.database.SaveChangesAsync();
 		}
 
+		// StartOrder(string) => async Orders
+		// initializes an order for a user and sets the state to Shopping
+		// PRODUCTION: This is called any time someone reaches the Orders page without a valid cookie set
 		public async Task<Orders> StartOrder(String custId)
 		{
-			System.Diagnostics.Debug.WriteLine("Starting Order");
 			// start the order
 			Orders o = new Orders();
 
@@ -135,6 +158,7 @@ namespace spicy_garden.Models
 				// person is signed in supposedly
 				o.AccountId = user.Id;
 			}
+			// we set the remaining parameters or the Orders object and save.
 			o.CustomerId = custId;
 			o.Created = DateTime.Now;
 			o.OrderStatus = OrderStatus.Shopping;
@@ -143,9 +167,11 @@ namespace spicy_garden.Models
 			return o;
 		}
 
+		// UpdateOrderAccount(Orders, Customer) => async void
+		// Associates a previously anonymous order with a user account
+		// PRODUCTION: This is called if someone starts an order while logged out and then logs back in afterwards.
 		public async Task UpdateOrderAccount(Orders o, Customer c)
 		{
-			System.Diagnostics.Debug.WriteLine("Update");
 			o.CustomerId = c.Id;
 			o.AccountId = (await this.database.Users.Where(u => u.Id == c.AccountId).FirstOrDefaultAsync()).Id;
 			if (this.database.Entry(o).State == EntityState.Detached){
@@ -154,9 +180,12 @@ namespace spicy_garden.Models
 			this.database.Entry(o).State = EntityState.Modified;
 			await this.database.SaveChangesAsync();
 		}
+
+		// CancelOrder(Orders) => async void
+		// Cancels all items in an order and closes the order status
+		// PRODUCTION: This is called if someone logged in starts an order and then logs out without finalizing the order.
 		public Task CancelOrder(Orders o)
 		{
-			System.Diagnostics.Debug.WriteLine("Cancel");
 			if (o != null)
 			{
 				var query = (from item in this.database.OrderItems

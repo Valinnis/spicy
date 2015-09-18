@@ -185,7 +185,7 @@ namespace spicy_garden.Controllers
 
 		[HttpPost]
 		[AjaxOnly]
-		public async Task<bool> RemoveFromCart(string itemId)
+		public async Task<bool> RemoveFromCart(string itemId, string optionId)
 		{
 			try
 			{
@@ -194,7 +194,7 @@ namespace spicy_garden.Controllers
 				{
 					RedirectToAction("Index");
 				}
-				await new OrderHandler().RemoveItemFromCart(c["oid"], itemId);
+				await new OrderHandler().RemoveItemFromCart(c["oid"], itemId, optionId);
 				return true;
 			}
 			catch (Exception e)

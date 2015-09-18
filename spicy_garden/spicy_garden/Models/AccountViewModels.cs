@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
+/* View Models for the Login and Registration Pages */
 namespace spicy_garden.Models
 {
 	public class ExternalLoginConfirmationViewModel

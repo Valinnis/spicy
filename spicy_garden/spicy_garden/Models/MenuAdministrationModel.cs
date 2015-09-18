@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Web;
 
+/* This can be ignored for the most part. Testing purposes only. This needs to be removed in production */
 namespace spicy_garden.Models
 {
 	public enum HasSpice { Yes, No };

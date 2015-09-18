@@ -215,7 +215,7 @@ namespace spicy_garden.Controllers
 					RedirectToAction("Index");
 				}
 				var oid = c["oid"];
-				await new OrderHandler().AddItemToCart(oid, newItem);
+				await orderHandler.AddItemToCart(oid, newItem);
 				return GenerateItemHtml(await this.SpicyGardenDbContext.OrderItems.Where(x => x.OrderId == oid && x.MenuItemId == itemId && x.Removed == false).FirstOrDefaultAsync());
 			}
 			catch (Exception e)
@@ -236,7 +236,7 @@ namespace spicy_garden.Controllers
 				{
 					RedirectToAction("Index");
 				}
-				await new OrderHandler().RemoveItemFromCart(c["oid"], itemId, optionId);
+				await orderHandler.RemoveItemFromCart(c["oid"], itemId, optionId);
 				return true;
 			}
 			catch (Exception e)

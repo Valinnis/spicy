@@ -1,0 +1,55 @@
+﻿@model spicy_garden.Models.RegisterViewModel
+
+@if (ViewBag.displayForm == "True")
+{
+	<div class="content">
+		<p class="text-center">Spicy Garden Registration</p>
+		<div class="left half">
+			@using (Html.BeginForm("Register", "Account", FormMethod.Post, new { role = "form" }))
+			{
+				@Html.AntiForgeryToken()
+				<div class="input-label left">Username:</div>
+				@Html.TextBoxFor(m => m.UserName, new { @class = "input-field", placeholder = "Username" })
+				<div class="input-label left">Email:</div>
+				@Html.TextBoxFor(m => m.Email, new { @class = "input-field", placeholder = "someone@somewhere.com" })
+				<div class="input-label left">Password:</div>
+				@Html.PasswordFor(m => m.Password, new { @class = "input-field", placeholder = "Password" })
+				<div class="input-label left"></div>
+				@Html.PasswordFor(m => m.ConfirmPassword, new { @class = "input-field", placeholder = "Confirm Password" })
+				<div class="input-label left">First Name:</div>
+				@Html.TextBoxFor(m => m.FirstName, new { @class = "input-field", placeholder = "First Name (Optional)" })
+				<div class="input-label left">Last Name:</div>
+				@Html.TextBoxFor(m => m.LastName, new { @class = "input-field", placeholder = "Last Name (Optional)" })
+				<div class="input-label left">Telephone:</div>
+				@Html.TextBoxFor(m => m.Telephone, new { @class = "input-field", placeholder = "Telephone Number" })
+				<div class="input-label left">Address:</div>
+				@Html.TextBoxFor(m => m.AddrLine1, new { @class = "input-field", placeholder = "Street Address" })
+				<div class="input-label left"></div>
+				@Html.TextBoxFor(m => m.AddrLine2, new { @class = "input-field", placeholder = "Apartment/Suite #(Optional)" })
+				<div class="input-label left"></div>
+				@Html.TextBoxFor(m => m.PostalCode, new { @class = "input-field", placeholder = "Postal Code" })
+				<div class="input-label left"></div>
+				<input type="hidden" name="r" value="@ViewBag.sourceUrl" />
+				<input type="submit" class="input-field button link nav-button no-hover" value="Register" />
+				<div class="error">
+					@Html.ValidationSummary("")
+				</div>
+			}
+		</div>
+		<div class="left half medium">
+			Welcome to our new site! Please fill out the registration form on the left. It is a quick and easy process and we will take you right back to your previous page!
+			<p>
+				By registering, you will be able to save your order history as well as keep track of receipts online. Don't worry! We will never solicit you without permission nor will we ever sell personal information to third parties.
+			</p>
+		</div>
+	</div>
+}
+else
+{
+	<div class="content">
+		You are already logged in! Please log out before registering again!
+	</div>
+}
+@section Scripts {
+	@Scripts.Render("~/bundles/jqueryval")
+}

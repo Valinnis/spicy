@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href='//fonts.googleapis.com/css?family=Open+Sans:400,300italic,400italic,600,600italic,700,700italic,800italic,800,300&subset=latin,vietnamese' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+	<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+	<script src="~/Scripts/main-layout.js"></script>
+	<title>@ViewBag.Title - Spicy Garden</title>
+	@Styles.Render("~/Content/css")
+	@Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+	<div class="width-container center clearfix">
+		<div class="header-logo left">
+			<div id="logo">
+				<img src="~/Content/images/logo.png" />
+			</div>
+		</div>
+		<div id ="user-func" class="left">
+			<div class="user-func-bar small">
+				@ViewBag.Greeting It is currently @DateTime.Now.ToLongDateString()
+				<a href="//facebook.com/spicygarden" class="social fb"></a>
+			</div>
+			<div class="user-func-bar">
+				@if (ViewBag.DisplayReg == "True")
+				{
+					@Html.ActionLink("REGISTER", "Register", "Account", null, new { @class = "link nav-button right no-hover light-grey small" })
+				}
+				else
+				{
+					@Html.ActionLink("MANAGE", "Manage", "Account", null, new { @class = "link nav-button right no-hover light-grey small" })
+				}
+				@Html.ActionLink((string)ViewBag.LoginText, (string)ViewBag.LoginLink, new { Controller = "Account" }, new { @class = "link nav-button right no-hover light-grey small" })
+			</div>
+		</div>
+	</div>
+	<div class="full-container clear light-grey space-large">
+		<div class="width-container center">
+			<div class="nav-bar">
+				<div class="nav-item left">
+					@Html.ActionLink("Welcome", "Index", new { Controller = "Home" }, new { @class = "nav-button" })
+				</div>
+				<div class="nav-item left">
+					@Html.ActionLink("Contact Us", "Contact", new { Controller = "Home" }, new { @class = "nav-button" })
+				</div>
+				<div class="nav-item left">
+					@Html.ActionLink("Order Online", "Index", "Order", null, new { @class = "nav-button" })
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="width-container center">
+		<div class="content-box lighter-grey">
+			@RenderBody()
+		</div>
+	</div>
+	@Scripts.Render("~/bundles/jquery")
+	@Scripts.Render("~/bundles/bootstrap")
+	@RenderSection("scripts", required: false)
+    <div class="width-container center">
+        <footer>
+            <p>&copy; @DateTime.Now.Year - Spicy Garden Restaurant</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,31 @@
+﻿@model spicy_garden.Models.AccountManagementModel
+@{ ViewBag.Title = "Account Management"; }
+<div class="content">
+	<div class="left half">
+		@using (Html.BeginForm("EditAccountInformation", "Account", FormMethod.Post, new { role = "form" }))
+			{
+			@Html.AntiForgeryToken()
+			<div class="input-label left">Email:</div>
+			@Html.TextBoxFor(m => m.Email, new { @class = "input-field", @Value = ViewBag.Email })
+			<div class="input-label left">First Name:</div>
+				@Html.TextBoxFor(m => m.FirstName, new { @class = "input-field", @Value = ViewBag.FirstName })
+				<div class="input-label left">Last Name:</div>
+				@Html.TextBoxFor(m => m.LastName, new { @class = "input-field", @Value = ViewBag.LastName })
+				<div class="input-label left">Telephone:</div>
+				@Html.TextBoxFor(m => m.Telephone, new { @class = "input-field", @Value = ViewBag.Telephone })
+				<div class="input-label left">Address:</div>
+				@Html.TextBoxFor(m => m.AddrLine1, new { @class = "input-field", @Value = ViewBag.AddrLine1 })
+				<div class="input-label left"></div>
+				@Html.TextBoxFor(m => m.AddrLine2, new { @class = "input-field", @Value = ViewBag.AddrLine2 })
+				<div class="input-label left"></div>
+				@Html.TextBoxFor(m => m.PostalCode, new { @class = "input-field", @Value = ViewBag.PostalCode })
+				<div class="input-label left">Password:</div>
+				@Html.PasswordFor(m => m.Password, new { @class = "input-field", placeholder = "Current Password" })
+				<div class="input-label left"></div>
+				<input type="submit" class="input-field button link nav-button no-hover" value="Submit Changes" />
+				<div class="error">
+					@Html.ValidationSummary()
+				</div>
+			}
+	</div>
+</div>

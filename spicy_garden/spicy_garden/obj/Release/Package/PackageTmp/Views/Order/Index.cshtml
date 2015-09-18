@@ -1,0 +1,11 @@
+﻿@{ ViewBag.Title = "Menu"; }
+@model spicy_garden.Models.MainOrderView
+<script src="~/Scripts/click.js"></script>
+
+<div class="content">
+		@foreach (spicy_garden.Models.MenuCategory category in Enum.GetValues(typeof(spicy_garden.Models.MenuCategory)))
+		{
+			<h3 class="cat-head clear" id="@category.ToString().ToLower()">@category.ToString()</h3>
+			{ Html.RenderPartial("_CategoryView", Model.MenuItems.Where(x => x.Item.Category == category)); }
+		}
+</div>

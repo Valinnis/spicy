@@ -1,0 +1,58 @@
+﻿@model spicy_garden.Models.MenuAdministrationView
+<div class="content clearfix">
+	<div class="left half">
+		<p class="text-center">Add a new menu item</p>
+		@using (Html.BeginForm("MenuAdmin", "Manage", FormMethod.Post, new { role = "form" }))
+		{
+			@Html.AntiForgeryToken()
+			<div class="input-label left">Item Name:</div>
+			@Html.TextBoxFor(m => m.ItemName, new { @class = "input-field", placeholder = "Menu Item Name" })
+			<div class="input-label left">Description:</div>
+			@Html.TextAreaFor(m => m.ItemDesc, new { @class = "input-field", placeholder = "Enter a brief description of the item here" })
+			<div class="input-label left">Item Category:</div>
+			@Html.EnumDropDownListFor(m => m.Category, "- Please Select the Menu Category -", new { @class = "input-field" })
+			<div class="input-label left">Spice Scale: </div>
+			@Html.EnumDropDownListFor(m => m.HasSpice, new { @class = "input-field" })
+			<div class="baseprice">
+				<div class="input-label left">Base Price: </div>
+				@Html.TextBoxFor(m => m.BasePrice, new { @class = "input-field" })
+				<div class="input-label left">1/2 Order Price: </div>
+				@Html.TextBoxFor(m => m.HalfOrderPrice, new { @class = "input-field" })
+			</div>
+			<hr />
+			<div class="options">
+			</div>
+			<div class="input-label left"></div>
+			<button class="add_field input-field button link nav-button no-hover">Add an Option</button>
+			<div class="input-label left"></div>
+			<input type="submit" class="input-field button link nav-button no-hover" value="Submit" />
+		}
+	</div>
+	<div class="left half medium">
+		@{ Html.RenderPartial("_CurrentItems", new spicy_garden.Models.CurrentItemView(new spicy_garden.Models.SpicyGardenDbContext())); }
+	</div>
+</div>
+<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function () {
+		var max_fields = 10;
+		var wrapper = $(".options");
+		var baseprice = $(".baseprice");
+		var add_button = $(".add_field");
+		var x = 0;
+		$(add_button).click(function (e) {
+			e.preventDefault();
+			if (x < max_fields) {
+				$(wrapper).append('<div class="input-label left">Option Name:</div><input class="input-field" id="Options_' + x + '__OptionName" name="Options[' + x + '].OptionName" type="text" value="" />')
+				$(wrapper).append('<div class="input-label left">Option Price:</div><input class="input-field" id="Options_' + x + '__OptionPrice" name="Options[' + x + '].OptionPrice" type="text"/>')
+				$(wrapper).append('<div class="input-label left">Half Price:</div><input class="input-field" id="Options_' + x + '__HalfOrderPrice" name="Options[' + x + '].HalfOrderPrice" type="text"/>')
+				$(wrapper).append('<hr />');
+				$(baseprice).remove();
+				x++;
+			}
+		})
+	})
+</script>
+@section Scripts {
+	@Scripts.Render("~/bundles/jqueryval")
+}

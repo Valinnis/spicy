@@ -1,0 +1,31 @@
+﻿@model spicy_garden.Models.ItemOptionsView
+
+
+@{ var option = Model.Options.ToList(); }
+
+@if (option.Count() > 0)
+{
+
+	var first = option.FirstOrDefault();
+	if (first.HalfOrderPrice > 0)
+	{
+		<td>@first.OptionName</td><td>@first.OptionPrice</td>
+		<tr><td></td><td>@first.OptionName (Half)</td><td>@first.HalfOrderPrice</td></tr>
+
+	}
+
+	foreach (var item in Model.Options.Skip(1))
+	{
+		if (item.HalfOrderPrice > 0)
+		{
+			<tr><td></td><td>@item.OptionName</td><td>@item.OptionPrice</td></tr>
+			<tr><td></td><td>@item.OptionName (Half)</td><td>@item.HalfOrderPrice</td></tr>
+		}
+		else
+		{
+			<tr><td></td><td>@item.OptionName</td><td>@item.OptionPrice</td></tr>
+		}
+	}
+}
+
+

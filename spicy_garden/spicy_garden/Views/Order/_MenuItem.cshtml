@@ -1,0 +1,49 @@
+﻿@model spicy_garden.Models.MenuItemView
+
+@{
+	var flipped = "";
+	var btn_text = "Add to Cart";
+	if (Model.Selected)
+	{
+		flipped = "flipped";
+		btn_text = "Remove";
+	}
+}
+@using (Html.BeginCollectionItem("Items"))
+{
+<div class="menuitem left @flipped">
+	<div class="front">
+		<span class="med-1 heavy item-name">@Model.Item.ItemName</span><br />
+		<span class="small item-desc">@Model.Item.ItemDesc </span> <br />
+	</div>
+	<div class="back">
+		<span class="med-1 heavy item-name">@Model.Item.ItemName</span><br />
+		<div class="list-container clearfix">
+			@Html.HiddenFor(m => m.Item.Id)
+			@if (Model.Item.HasOptions)
+			{
+				@Html.DropDownListFor(m => m.OptionSelected, Model.Options, new { @class = "dropdown_menu left hspace space-small option" })
+			}
+			@if (Model.Item.HasSpicy)
+			{
+				@Html.EnumDropDownListFor(m => m.SpiceLevel, new { @class = "dropdown_menu left hspace space-small spicelevel" })
+			}
+			@if (Model.Item.HasSauce)
+			{
+				@Html.EnumDropDownListFor(m => m.Item.Sauces, new { @class = "dropdown_menu left hspace space-small sauce" })
+			}
+			@if (Model.HasHalfOrder)
+			{
+				@Html.CheckBoxFor(m => m.HalfOrder, new { @class = "half-check left halforder" });
+				@Html.LabelFor(m => m.HalfOrder, new { @class = "left small" });
+			}
+		</div>
+		<span class="quantity-label left small">Quantity:</span>
+		@Html.TextBoxFor(p => p.Quantity, new { @class = "quantity-input clear", Value = Model.Quantity, MaxLength = 2 })
+		<button class="add-btn link nav-button no-hover light-grey small">@btn_text</button>
+		<span class="medium price-tag">
+			$@Model.Item.ItemPrice
+		</span>
+	</div>
+</div>
+}

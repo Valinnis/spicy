@@ -1,0 +1,25 @@
+﻿@model spicy_garden.Models.CurrentItemView
+
+<p>Current Items:</p>
+<table>
+	<tr><th>Name</th><th>Description</th><th>Price</th></tr>
+	@foreach (var item in Model.MenuItems)
+	{
+		<text>
+		<tr>
+			<td>@item.ItemName</td>
+			@if (item.HasOptions)
+			{
+				Html.RenderPartial("_ItemOptions", new spicy_garden.Models.ItemOptionsView(new spicy_garden.Models.SpicyGardenDbContext(), @item.Id));
+			}
+			else
+			{
+				<td>@item.ItemDesc</td><td>@item.ItemPrice</td>
+				if (item.HalfOrderPrice > 0)
+				{
+					<tr><td></td><td>@item.ItemDesc (Half)</td><td>@item.HalfOrderPrice</td></tr>
+				}
+			}
+	</text>
+	}
+</table>

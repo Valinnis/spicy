@@ -1,0 +1,6 @@
+﻿@model IEnumerable<spicy_garden.Models.MenuItemView>
+
+@foreach (var item in Model)
+{
+	Html.RenderPartial("_MenuItem",item);
+}

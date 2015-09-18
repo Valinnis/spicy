@@ -1,0 +1,40 @@
+﻿@using spicy_garden.Models
+@model LoginViewModel
+
+
+<div class="content text-center">
+	Spicy Garden Login
+</div>
+<div class="left half">
+	@using (Html.BeginForm("Login", "Account", FormMethod.Post, new { role = "form" }))
+	{
+		@Html.AntiForgeryToken()
+		<div class="input-label left">Email:</div>
+		@Html.TextBoxFor(m => m.UserId, new { @class = "input-field", placeholder = "Username" })
+		<div class="input-label left">Password:</div>
+		@Html.PasswordFor(m => m.Password, new { @class = "input-field", placeholder = "Password" })
+		@Html.CheckBoxFor(m => m.RememberMe, new { @class = "input-field left" })
+		<label class="medium">Keep me Logged In</label>
+		<div class="clear"></div>
+		<div class="input-label left"></div>
+		<input type="submit" value="Log In" class="input-field button link nav-button no-hover" />
+		<div class="error">
+			@Html.ValidationSummary("")
+		</div>
+		<input type="hidden" name="r" value="@ViewBag.sourceUrl"/>
+		<div class="small">
+			If you don't have an account already, click here to @Html.ActionLink("register as a new user", "Register")!
+		</div>
+		@* Enable this once you have account confirmation enabled for password reset functionality
+			<p>
+				 @Html.ActionLink("Forgot your password?", "ForgotPassword")
+			</p>*@
+	}
+</div>
+<div class="left half medium">
+	Welcome!
+</div>
+
+@section Scripts {
+	@Scripts.Render("~/bundles/jqueryval")
+}

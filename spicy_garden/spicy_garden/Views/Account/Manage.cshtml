@@ -1,0 +1,24 @@
+﻿@model spicy_garden.Models.AccountManagementModel
+@{ ViewBag.Title = "Account Management"; }
+<div class="content">
+	<div class="left half">
+		<p class="heavy">Contact Information:</p>
+		<table>
+			<tr><td class="row-headers heavy">Name:</td><td class="row-description">@ViewBag.FirstName @ViewBag.LastName</td></tr>
+			<tr><td class="row-headers heavy">Email Address:</td><td class="row-description">@ViewBag.Email</td></tr>
+			<tr><td class="row-headers heavy">Telephone:</td><td class="row-description">@ViewBag.Telephone</td></tr>
+			<tr><td class="row-headers heavy">Delivery Address:</td>
+			<td class="text-left">@{
+				string output = ViewBag.AddrLine1 + Environment.NewLine;
+				if (ViewBag.AddrLine2 != "")
+				{
+					output = ViewBag.AddrLine2 + '-' + output;
+				}
+				output += "Saskatoon, SK" + Environment.NewLine + ViewBag.PostalCode + " Canada";
+			}
+			@Html.Raw(Html.Encode(output).Replace(Environment.NewLine, "<br />"))
+			</td></tr>
+		</table>
+		<p class="medium"><a href="/Account/EditAccountInformation">Edit Contact Information</a></p>
+	</div>
+</div>

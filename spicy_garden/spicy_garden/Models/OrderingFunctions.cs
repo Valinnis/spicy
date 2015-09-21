@@ -138,6 +138,42 @@ namespace spicy_garden.Models
 			await this.database.SaveChangesAsync();
 		}
 
+		// UpdateItem(string, MenuItemView) => void
+		// Takes an item and updates the parameters of it
+		// PRODUCTION: This is called via AJAX
+		public async Task UpdateItem(string orderItemId, string orderId, MenuItemView item)
+		{
+			// only execute if not null
+			if (item != null)
+			{
+				var dbItem = await this.database.OrderItems.Where(x => x.Id == orderItemId).FirstOrDefaultAsync();
+				// if it doesn't exist already, we just add it
+				if (dbItem == null)
+				{
+					await AddItemToCart(orderId, item);
+				}
+				else if (dbItem.MenuItemId != item.Id)
+				{
+					await RemoveItemFromCart(orderId, dbItem.Id, dbItem.OptionId);
+					await AddItemToCart(orderId, item);
+				}
+				else
+				{
+					dbItem.Created = DateTime.Now;
+					dbItem.IsHalfOrder = item.IsHalfOrder;
+					dbItem.OptionId = item.OptionSelected;
+					dbItem.Quantity = item.Quantity;
+					dbItem.Sauce = item.Sauce;
+					dbItem.SpiceLevel = item.SpiceLevel;
+					if (this.database.Entry(dbItem).State == EntityState.Detached)
+					{
+						this.database.OrderItems.Attach(dbItem);
+					}
+					this.database.Entry(dbItem).State = EntityState.Modified;
+				}
+			}
+		}
+
 		// StartOrder(string) => async Orders
 		// initializes an order for a user and sets the state to Shopping
 		// PRODUCTION: This is called any time someone reaches the Orders page without a valid cookie set

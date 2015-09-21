@@ -240,3 +240,5 @@ D:\spicy_clone\spicy_garden\spicy_garden\bin\Microsoft.Owin.Security.MicrosoftAc
 D:\spicy_clone\spicy_garden\spicy_garden\obj\Debug\spicy_garden.dll
 D:\spicy_clone\spicy_garden\spicy_garden\obj\Debug\spicy_garden.pdb
 D:\spicy_clone\spicy_garden\spicy_garden\obj\Debug\spicy_garden.csprojResolveAssemblyReference.cache
+D:\spicy_clone\spicy_garden\spicy_garden\obj\Debug\spicy_garden.Migrations.test.resources
+D:\spicy_clone\spicy_garden\spicy_garden\obj\Debug\spicy_garden.csproj.GenerateResource.Cache
